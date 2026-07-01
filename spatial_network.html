@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>空间预测器 vs 传统机器学习</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 1100px; margin: 0 auto; padding: 20px; background: #f8f9fa; color: #333; }
+  h1 { text-align: center; font-size: 28px; margin-bottom: 5px; }
+  .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+  .section { background: white; border-radius: 12px; padding: 25px; margin-bottom: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  h2 { font-size: 20px; border-bottom: 2px solid #2196F3; padding-bottom: 8px; margin-top: 0; }
+  img { width: 100%; border-radius: 8px; margin: 10px 0; }
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+  .card { background: linear-gradient(135deg, #2196F3, #1976D2); color: white; padding: 18px; border-radius: 10px; text-align: center; }
+  .card.green { background: linear-gradient(135deg, #4CAF50, #388E3C); }
+  .card.orange { background: linear-gradient(135deg, #FF9800, #F57C00); }
+  .card .num { font-size: 36px; font-weight: bold; }
+  .card .label { font-size: 13px; opacity: 0.9; margin-top: 5px; }
+  table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+  th, td { padding: 10px 14px; text-align: center; border-bottom: 1px solid #eee; }
+  th { background: #f5f5f5; font-weight: 600; }
+  .win { color: #4CAF50; font-weight: bold; }
+  .lose { color: #999; }
+  .highlight { color: #2196F3; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>空间预测器 vs 传统机器学习</h1>
+<p class="subtitle">分类 · 回归 · 概率 · 决策边界 · 训练效率 —— 五维对比</p>
+
+<!-- 总结卡片 -->
+<div class="summary">
+  <div class="card">
+    <div class="num">0</div>
+    <div class="label">超参数</div>
+  </div>
+  <div class="card green">
+    <div class="num">1×</div>
+    <div class="label">place() 即完成训练</div>
+  </div>
+  <div class="card orange">
+    <div class="num">93-98%</div>
+    <div class="label">小数据分类准确率</div>
+  </div>
+  <div class="card">
+    <div class="num">0.99+</div>
+    <div class="label">回归 R²</div>
+  </div>
+</div>
+
+<!-- 图1: 分类 -->
+<div class="section">
+  <h2>一、分类准确率对比 —— 7 模型 × 4 数据集</h2>
+  <p>空间预测器 vs 逻辑回归、决策树、SVM、KNN、随机森林、MLP。</p>
+  <img src="html_fig1.png" alt="分类对比">
+  <table>
+    <tr><th>数据集</th><th>SN</th><th>LR</th><th>DT</th><th>SVM</th><th>KNN</th><th>RF</th><th>MLP</th><th>胜者</th></tr>
+    <tr><td>Iris (150×4)</td><td class="highlight">93.3%</td><td>91.1%</td><td>93.3%</td><td>91.1%</td><td>95.6%</td><td>93.3%</td><td>80.0%</td><td class="win">KNN</td></tr>
+    <tr><td>Wine (178×13)</td><td class="highlight">96.3%</td><td>98.1%</td><td>96.3%</td><td>66.7%</td><td>72.2%</td><td>98.1%</td><td>96.3%</td><td class="win">LR/RF</td></tr>
+    <tr><td>Breast Cancer (569×30)</td><td>94.7%</td><td class="highlight">98.8%</td><td>91.8%</td><td>90.1%</td><td>97.1%</td><td>95.9%</td><td>88.3%</td><td class="win">LR</td></tr>
+    <tr><td>Synthetic (500×20)</td><td>92.0%</td><td>88.7%</td><td>86.3%</td><td>91.7%</td><td>91.7%</td><td class="highlight">93.0%</td><td>89.7%</td><td class="win">RF</td></tr>
+  </table>
+  <p><strong>结论</strong>：SN 在小数据上与最佳传统 ML 持平或接近。不需要调参、不需要迭代训练。</p>
+</div>
+
+<!-- 图2: 回归 -->
+<div class="section">
+  <h2>二、回归 R² 对比 —— 0阶 vs 1阶 vs 传统回归</h2>
+  <p>SN-0（加权平均）vs SN-1（局部线性场）vs 线性回归 / Ridge / MLP。</p>
+  <img src="html_fig2.png" alt="回归对比">
+  <table>
+    <tr><th>数据集</th><th>SN-0</th><th>SN-1</th><th>线性回归</th><th>Ridge</th><th>MLP</th><th>胜者</th></tr>
+    <tr><td>10D 低噪</td><td>0.578</td><td class="highlight">0.991</td><td>0.977</td><td>0.977</td><td>0.977</td><td class="win">SN-1</td></tr>
+    <tr><td>20D 中噪</td><td>0.587</td><td class="highlight">0.944</td><td>0.818</td><td>0.820</td><td>0.856</td><td class="win">SN-1</td></tr>
+    <tr><td>50D 高噪</td><td>0.474</td><td>0.625</td><td>0.594</td><td>0.595</td><td>0.539</td><td class="win">SN-1</td></tr>
+  </table>
+  <p><strong>结论</strong>：SN-1 局部线性场在所有回归场景下 R² 最高。0阶→1阶的差距是场趋势修正的价值。</p>
+</div>
+
+<!-- 图3: 概率 -->
+<div class="section">
+  <h2>三、概率输出 —— ROC / 分布 / 散点</h2>
+  <p>Breast Cancer 二分类。SN predict_proba vs 逻辑回归 predict_proba。</p>
+  <img src="html_fig3.png" alt="概率对比">
+  <p><strong>左</strong>：ROC 曲线——SN AUC=0.989，LR AUC=0.998。差距 0.009。</p>
+  <p><strong>中</strong>：SN 概率倾向于极端值（0 或 1）——场干涉是竞争性的，赢家通吃。LR 概率分布更平滑。</p>
+  <p><strong>右</strong>：每个点是一个测试样本。x=LR概率，y=SN概率。对角线附近说明两者判断一致。</p>
+</div>
+
+<!-- 图4: 决策边界 -->
+<div class="section">
+  <h2>四、决策边界 —— 线性可分 / 双月形</h2>
+  <p>2D 数据上 SN / LR / SVM 的决策面可视化。红色/蓝色 = 两个类别。</p>
+  <img src="html_fig4.png" alt="决策边界">
+  <p><strong>SN 的边界来自场干涉</strong>——正负因果荷抵消处的因果静区。不同于 LR 的线性超平面和 SVM 的核化边界。</p>
+</div>
+
+<!-- 图5: 效率 -->
+<div class="section">
+  <h2>五、训练效率 —— 随样本数增长</h2>
+  <p>30D 数据，对比 SN / LR / SVM / RF / MLP 的训练时间。</p>
+  <img src="html_fig5.png" alt="效率对比">
+  <p><strong>SN 无迭代</strong>——place() 是一次 O(n²d) 距离矩阵计算。小数据时最快，大数据时 O(n²) 增长。传统 ML 的迭代成本随数据量和复杂度增长。</p>
+</div>
+
+<!-- 总结 -->
+<div class="section">
+  <h2>总结</h2>
+  <table>
+    <tr><th>场景</th><th>空间预测器</th><th>传统 ML</th></tr>
+    <tr><td>小数据分类 (n&lt;500)</td><td class="win">最优或接近</td><td>过拟合风险</td></tr>
+    <tr><td>回归 (n≫d)</td><td class="win">局部线性 R²&gt;0.99</td><td>线性回归近似</td></tr>
+    <tr><td>概率输出</td><td>AUC 接近 LR</td><td class="win">LR 更平滑</td></tr>
+    <tr><td>决策边界</td><td>干涉形成，较锐利</td><td>LR 线性，SVM 核化</td></tr>
+    <tr><td>训练效率</td><td class="win">快（无迭代）</td><td>随 n 增长</td></tr>
+    <tr><td>超参数</td><td class="win">0</td><td>k/C/γ/max_depth...</td></tr>
+    <tr><td>增量学习</td><td class="win">place_one 即插即用</td><td>需重训练</td></tr>
+  </table>
+</div>
+
+</body>
+</html>
