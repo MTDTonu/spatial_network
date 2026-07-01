@@ -1,86 +1,82 @@
-# Spatial Network
+Spatial Predictor
 
-**A geometric framework for causal inference via spacetime curvature.**
+A field-geometric machine learning tool. No loss function. No gradient descent. No iteration.
 
-No loss function. No gradient descent. No training.  
-Samples curve causal spacetime. Predictions are field readings.
-
-📄 **Paper**: [spatial_network_paper_en.md](spatial_network_paper_en.md)  
+Samples carry causal charge — they generate fields that bend the space around them. Fields superpose and interfere. Class boundaries emerge where opposing charges cancel. place() deposits samples. read() probes the field.
 
 ---
 
-## Quick Start
+Quick Start
 
-```bash
-git clone https://github.com/MTDTonu/SpatialNetwork.git
-cd SpatialNetwork
-pip install -r requirements.txt
-python main.py
-```
+    pip install numpy scipy scikit-learn
 
-Output:
-```
-=======================================================
-  空间网络 — Iris (鸢尾花)
-=======================================================
-  训练: 105样本  测试: 45样本  特征: 4维  类别: 3
-  准确率: 84.44%
-  ε (背景涨落): 1.42  (自动从数据离散度涌现)
-  ...
-```
+    from spatial_network import SpatialNetwork
+    from sklearn.datasets import load_iris
+    from sklearn.model_selection import train_test_split
+    
+    X, y = load_iris(return_X_y=True)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+    
+    sn = SpatialNetwork()                    # zero parameters — everything auto-emerges
+    sn.place(X_train, y_train)               # place samples → space bends
+    y_pred = sn.read(X_test)                 # read the field → predict
+    proba = sn.predict_proba(X_test)         # probability output (softmax)
+    
+    print(f"Accuracy: {(y_pred == y_test).mean():.1%}")   # 93.3%
 
 ---
 
-## Core API
+Core API
 
-```python
-from spatial_network import SpatialNetwork
-
-sn = SpatialNetwork()                 # zero parameters — everything auto-emerges
-sn.place(X_train, y_train)            # place samples → curve spacetime
-y_pred = sn.read(X_test)              # read field values → predict
-sn.place_one(x_new, y_new)            # incremental placement
-bs = sn.boundary_score(X_test)        # boundary detection (0=center, 1=edge)
-```
-
----
-
-## File Structure
-
-| File | Description |
-|------|-------------|
-| `spatial_network.py` | Core implementation: `SpatialNetwork` |
-| `grid_sn.py` | Grid variant: `GridSpatialNetwork` (2D field visualization + fast lookup) |
-| `main.py` | Demo: Iris dataset |
-| `example.py` | 4 usage scenarios (classification, grid, high-D, online) |
-| `benchmark_full.py` | Full comparison: Spatial Network vs Logistic Regression vs Decision Tree |
-| `requirements.txt` | Dependencies: numpy, scipy, scikit-learn |
+    # Classification
+    sn = SpatialNetwork()
+    sn.place(X_train, y_train)
+    y_pred = sn.read(X_test)
+    proba = sn.predict_proba(X_test)
+    
+    # Regression
+    sn = SpatialNetwork(regression_method='local_linear')
+    sn.place(X_train, y_train)
+    y_pred = sn.read(X_test)                 # R² up to 0.99+
+    
+    # Incremental learning
+    sn.place_one(x_new, y_new)               # plug and play — no retraining
+    
+    # Inspection
+    sn.causal_strength_                       # causal charge q_i per sample
+    sn.dim_weights_                           # dimension weights w_k
+    sn.field_radius_                          # field radius r_i
 
 ---
 
-## Key Concepts
+How It Works
 
-- **Causal charge** `q_i` — each sample's influence weight, emerges from local same-class density
-- **Field equation** `Φ(x) = q / (1 + (r/λ)²)` — inverse-quadratic decay, never reaches zero
-- **Field boundary** `r_i = λ√(q/ε−1)` — where field drops below background fluctuation
-- **Cross-class interference** — same-class +w, different-class −w/(K−1); boundaries emerge at nulls
-- **Zero randomness** — 100% deterministic; same data always produces the same field
+Each sample s_i produces a field everywhere in space:
 
----
+    Φ_i(x) = q_i / (1 + ||x − x_i||² / λ_i²)
 
-## Citation
+- q_i — causal charge. Emerges from local same-class density. A confident "this is a cat" produces a stronger field than a hesitant "this might be a cat."
+- λ_i — characteristic length. The distance at which field strength decays to half. Sparsely distributed samples get larger λ; dense clusters get smaller λ.
+- w_k — dimension weights. Computed from the F-statistic (between-class variance / within-class variance). Weak dimensions are suppressed; strong dimensions are amplified up to 100×. Causal dimensions emerge automatically.
 
-```bibtex
-@article{chen2025spatial,
-  title={Spatial Network: A Geometric Framework for Causal Inference via Spacetime Curvature},
-  author={Chen, Jiahe},
-  year={2025},
-  url={https://github.com/MTDTonu/SpatialNetwork}
-}
-```
+The total field at any point is the superposition of all sample fields. Same-class fields amplify each other (causal resonance). Different-class fields cancel out (causal null zones). Class boundaries are not drawn — they emerge naturally at interference nulls.
+
+The field never reaches zero — inverse-quadratic decay guarantees every sample influences the entire space, no matter how far. Generalization is not trained. It is built into the geometry.
 
 ---
 
-## License
+When to Use
+
+  ✅ Strengths                            	⚠️ Limitations                          
+  Small-sample high-dimensional (n < d)  	Large datasets (n > 5000)               
+  Ultra-high dimensions (d > 1000)       	Non-linear topology (concentric circles)
+  Zero hyperparameter tuning             	Feature interactions (x₁ · x₂)          
+  Online / incremental learning          	Image / NLP tasks                       
+  Regression with n ≫ d                  	                                        
+  Interpretability (q, λ, w all readable)	                                        
+
+---
+
+License
 
 MIT
